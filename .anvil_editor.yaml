@@ -3,6 +3,7 @@ unique_ids:
   forms:
     Form1: '1793555638263223481121812.3348'
   modules: {}
-  scripts: {}
+  scripts:
+    Script: '1793645070483739728474810.679'
   server_modules:
     ServerModule1: '1793645042649870776276989.56'
