@@ -266,6 +266,9 @@ async def analyze(request: Request):
         logging.exception("❌ Analysis failed: %s", e)
         return JSONResponse(
             status_code=503,
+            @app.get("/")
+def health():
+    return {"status": "ok"}
             content={"status": "error", "message": "Сервис временно недоступен, попробуйте ещё раз."},
         )
 
