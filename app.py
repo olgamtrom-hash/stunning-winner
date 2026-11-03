@@ -25,8 +25,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 def get_openai_key() -> Optional[str]:
     return os.environ.get("PROXYAPI_KEY")
+
 
 def openai_client_or_none() -> Optional[OpenAI]:
     key = get_openai_key()
@@ -36,6 +38,7 @@ def openai_client_or_none() -> Optional[OpenAI]:
         return OpenAI(api_key=key)
     except Exception:
         return None
+
 
 def normalize_criteria(raw: Any) -> List[str]:
     if raw is None:
@@ -56,6 +59,7 @@ def normalize_criteria(raw: Any) -> List[str]:
         return [p.strip() for p in parts if p.strip()]
     return [str(raw).strip()] if str(raw).strip() else []
 
+
 def _extract_text_from_transcription(resp: Any) -> str:
     if isinstance(resp, str):
         return resp.strip()
@@ -63,6 +67,7 @@ def _extract_text_from_transcription(resp: Any) -> str:
     if isinstance(txt, str) and txt.strip():
         return txt.strip()
     return str(resp).strip()
+
 
 def transcribe_audio_with_openai(client: OpenAI, file_bytes: bytes, filename: str) -> str:
     model_candidates = ["gpt-4o-mini-transcribe", "gpt-4o-transcribe", "whisper-1"]
@@ -82,6 +87,7 @@ def transcribe_audio_with_openai(client: OpenAI, file_bytes: bytes, filename: st
             last_err = e
             continue
     raise RuntimeError(f"STT failed for all models. Last error: {last_err}")
+
 
 def diarize_by_llm(client: OpenAI, raw_transcript: str) -> str:
     model_candidates = ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1"]
@@ -121,6 +127,7 @@ def diarize_by_llm(client: OpenAI, raw_transcript: str) -> str:
         lines.append(f"Спикер {sp}: {s}")
         sp = 2 if sp == 1 else 1
     return "\n".join(lines).strip()
+
 
 def analyze_dialogue(client: OpenAI, dialogue_text: str, criteria: List[str]) -> str:
     model_candidates = ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1"]
@@ -174,6 +181,11 @@ def analyze_dialogue(client: OpenAI, dialogue_text: str, criteria: List[str]) ->
             last_err = e
             continue
     raise RuntimeError(f"Analysis failed for all models. Last error: {last_err}")
+
+
+@app.get("/")
+def health():
+    return {"status": "ok"}
 
 
 @app.post("/analyze")
@@ -266,9 +278,6 @@ async def analyze(request: Request):
         logging.exception("❌ Analysis failed: %s", e)
         return JSONResponse(
             status_code=503,
-            @app.get("/")
-def health():
-    return {"status": "ok"}
             content={"status": "error", "message": "Сервис временно недоступен, попробуйте ещё раз."},
         )
 
@@ -276,6 +285,8 @@ def health():
     return JSONResponse(status_code=200, content={"status": "ok", "analysis": analysis_text})
 
 
+     
+  
 
 
             
