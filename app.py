@@ -3,7 +3,7 @@ import re
 import json
 import logging
 import io
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -25,9 +25,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Ключ берём только из переменных окружения (без Colab Secrets)
 def get_openai_key() -> Optional[str]:
-    return os.environ.get("UI_Proxyapi_key")
+    return os.environ.get("PROXYAPI_KEY")
 
 def openai_client_or_none() -> Optional[OpenAI]:
     key = get_openai_key()
@@ -183,12 +182,12 @@ async def analyze(request: Request):
 
     key = get_openai_key()
     if not key:
-        logging.warning("❌ UI_Proxyapi_key not found in environment")
+        logging.warning("❌ PROXYAPI_KEY not found in environment")
         return JSONResponse(
             status_code=500,
             content={
                 "status": "error",
-                "message": "ключ не задан в переменных окружения (UI_proxyapi_key)",
+                "message": "ключ не задан в переменных окружения (PROXYAPI_KEY)",
             },
         )
 
@@ -199,7 +198,7 @@ async def analyze(request: Request):
             status_code=500,
             content={
                 "status": "error",
-                "message": "Не удалось инициализировать OpenAI-клиент. Проверьте ключ в переменных окружения (UI_proxyapi_key).",
+                "message": "Не удалось инициализировать OpenAI-клиент. Проверьте ключ в переменных окружения (PROXYAPI_KEY).",
             },
         )
 
@@ -272,3 +271,8 @@ async def analyze(request: Request):
 
     logging.info("📤 Response sent")
     return JSONResponse(status_code=200, content={"status": "ok", "analysis": analysis_text})
+
+
+
+
+            
