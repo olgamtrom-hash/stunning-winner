@@ -35,7 +35,12 @@ def openai_client_or_none() -> Optional[OpenAI]:
     if not key:
         return None
     try:
-        return OpenAI(api_key=key)
+        # Указываем адрес ProxyAPI, чтобы обойти геоблокировку OpenAI
+        base_url = os.environ.get("PROXYAPI_BASE_URL", "https://api.proxyapi.ru/v1")
+        return OpenAI(
+            api_key=key,
+            base_url=base_url,
+        )
     except Exception:
         return None
 
@@ -283,7 +288,6 @@ async def analyze(request: Request):
 
     logging.info("📤 Response sent")
     return JSONResponse(status_code=200, content={"status": "ok", "analysis": analysis_text})
-
 
      
   
